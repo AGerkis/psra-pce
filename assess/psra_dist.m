@@ -1,4 +1,4 @@
-% psra_pdf.m
+% psra_dist.m
 %
 % Approximates a resilience metric's distribution from a PCE model of the
 % metric. Computes the 3sigma boundary on the metric values. Optionally
@@ -28,7 +28,7 @@
 % Author: Aidan Gerkis
 % Date: 11/04/2025
 
-function [d, b] = psra_pdf(m, v)
+function [d, b] = psra_dist(m, v)
     %% Parse Inputs & Assign parameters
     N_D = 10000; % Number of points to use when computing distribution
     n_s = 1000; % Number of points to use when plotting PDFs and CDFs
@@ -37,8 +37,12 @@ function [d, b] = psra_pdf(m, v)
     validate = true; % Validate by default
     
     % Parse N_D if it was passed
-    if isa(v, 'numeric')
-        N_D = v;
+    if nargin == 2
+        if isa(v, 'numeric')
+            N_D = v;
+        end
+    else % Create a dummy value of v so the next if statement works
+        v = struct();
     end
 
     if nargin ~= 2 || isa(v, 'numeric') % If validation data was not passed
@@ -91,8 +95,8 @@ function [d, b] = psra_pdf(m, v)
     end
     
     %% Compute 3sigma boundaries
-    b = [m.PCE.Moments.Mean - 3*sqrt([m.PCE.Moments.Var), ...
-         m.PCE.Moments.Mean + 3*sqrt([m.PCE.Moments.Var)];
+    b = [m.PCE.Moments.Mean - 3*sqrt(m.PCE.Moments.Var), ...
+         m.PCE.Moments.Mean + 3*sqrt(m.PCE.Moments.Var)];
 
     %% Compute Total Variation
     if validate
@@ -108,18 +112,18 @@ function [d, b] = psra_pdf(m, v)
     figure('Name', 'PDF Approximation');
     hold on;
     if validate
-        h = histogram(y_true, n_bins);
+        h = histogram(v.y, n_bins);
         yyaxis right
-        plot(range, pdf_true);
+        plot(range, pdf_true, 'Color', [0 0.4470 0.7410], 'LineWidth', 2);
         yyaxis left
-        histogram(y_hat, h.BinEdges);
+        histogram(y_hat, h.BinEdges, 'FaceColor', [0.8500 0.3250 0.0980]);
         yyaxis right
-        plot(range, pdf_hat)
-        legend(['True', '', 'Approximate', '']);
+        plot(range, pdf_hat, 'Color', [0.8500 0.3250 0.0980], 'LineWidth', 2, 'LineStyle', '-')
+        legend(["True", "Approximate", "", ""]);
     else
-        histogram(y_hat, n_bins);
+        histogram(y_hat, n_bins, 'FaceColor', [0.8500 0.3250 0.0980]);
         yyaxis right
-        plot(range, pdf_hat)
+        plot(range, pdf_hat, 'r', 'LineWidth', 2)
     end
     ylabel("Probability");
     yyaxis left
@@ -128,6 +132,7 @@ function [d, b] = psra_pdf(m, v)
     title("PDF of Metric" + tv_title);
     grid on;
     hold off;
+    xlim([min(range), max(range)]);
     ax = gca;
     ax.YAxis(1).Color = 'k';
     ax.YAxis(2).Color = 'k';
@@ -136,18 +141,18 @@ function [d, b] = psra_pdf(m, v)
     figure('Name', 'CDF Approximation');
     hold on;
     if validate
-        h = histogram(y_true, n_bins,'Normalization','cdf');
+        h = histogram(v.y, n_bins, 'Normalization', 'cdf');
         yyaxis right
-        plot(range, cdf_true);
+        plot(range, cdf_true, 'Color', [0 0.4470 0.7410], 'LineWidth', 2);
         yyaxis left
-        histogram(y_hat, h.BinEdges,'Normalization','cdf');
+        histogram(y_hat, h.BinEdges, 'Normalization', 'cdf', 'FaceColor', [0.8500 0.3250 0.0980]);
         yyaxis right
-        plot(range, cdf_hat)
-        legend(['True', '', 'Approximate', '']);
+        plot(range, cdf_hat, 'Color', [0.8500 0.3250 0.0980], 'LineWidth', 2, 'LineStyle', '-')
+        legend(["True", "Approximate", "", ""]);
     else
-        histogram(y_hat, n_bins,'Normalization','cdf');
+        histogram(y_hat, n_bins, 'Normalization', 'cdf', 'FaceColor', [0.8500 0.3250 0.0980]);
         yyaxis right
-        plot(range, cdf_hat)
+        plot(range, cdf_hat, 'Color', [0.8500 0.3250 0.0980], 'LineWidth', 2)
     end
     ylabel("Cumulative Probability");
     yyaxis left
@@ -156,6 +161,7 @@ function [d, b] = psra_pdf(m, v)
     title("CDF of Metric" + tv_title);
     grid on;
     hold off;
+    xlim([min(range), max(range)]);
     ax = gca;
     ax.YAxis(1).Color = 'k';
     ax.YAxis(2).Color = 'k';

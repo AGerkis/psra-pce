@@ -38,10 +38,10 @@ function [mu, std] = psra_moments(m, v)
         fprintf("%%%%%%%%%%%% Moment Validation %%%%%%%%%%%%\n");
         fprintf("   True Mean: %2.2f\n", mu_true);
         fprintf("   Approximate Mean: %2.2f\n", mu);
-        fprintf("   Approximation Error: %2.2f\%\n\n", 100*abs(mu-mu_true)/mu_true);
+        fprintf("   Approximation Error: %2.2f%%\n\n", 100*abs(mu-mu_true/mu_true));
 
         fprintf("   True Mean: %2.2f\n", std_true);
         fprintf("   Approximate Mean: %2.2f\n", std);
-        fprintf("   Approximation Error: %2.2f\%\n\n", 100*abs(std-std_true)/std_true);
+        fprintf("   Approximation Error: %2.2f%%\n\n", 100*abs(std-std_true/std_true));
     end
 end

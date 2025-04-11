@@ -81,3 +81,13 @@ PCEOpts.ExpDesign.Y = exp.out(:, 1); % Assign corresponding outputs
 pce_model = uq_createModel(PCEOpts);
 
 %% Assess Resilience
+% Load Validation Data
+load("validation_data");
+val.x = validation.in(:, 1:6);
+val.y = validation.out(:, 1);
+
+% Approximate Moments
+[mean, variance] = psra_moments(pce_model, val);
+
+% Approximate Distribution;
+[distribution, boundaries] = psra_dist(pce_model, val);
