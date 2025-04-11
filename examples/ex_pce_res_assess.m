@@ -27,7 +27,7 @@ sim_opt.outname = ''; % Output filename
 sim_opt.n_in = 12; % Number of model inputs (2*Size of Active Set)
 sim_opt.n_out = 10; % Computing all metrics for 2 indicators
 
-% Specify Inputs
+% Specify Inputs for Experiment Generation
 load("example_input_39bus.mat");
 sim_opt.input = uq_createInput(input.Options);
 
@@ -47,7 +47,7 @@ exp_opt.Distance = 'Euclidean'; % Use Euclidean distance to compute Maximin dist
 exp_opt.N_cand = 50; % Number of candidate designs for MmLHS
 
 % Create function handle
-design_exp = @(N)uq_design_exp(sim_opt.input, N, 1, maximin_opts);
+design_exp = @(N)uq_design_exp(sim_opt.input, N, 1, exp_opt);
 
 %% Generate experiments
 exp = gen_exp(sim_opt, design_exp);
@@ -56,6 +56,9 @@ exp = gen_exp(sim_opt, design_exp);
 % Here PCE models are computed for the system response in the disturbance
 % stage. For this reason the recovery time inputs (in array positions 7:12)
 % are ignored.
+
+% Specify PCE Inputs
+load("pce_input_39bus.mat");
 
 % Define PCE Model Options
 PCEOpts.Type = 'Metamodel';
@@ -67,12 +70,12 @@ PCEOpts.TruncOptions.qNorm = [1, 0.75, 0.5, 0.25, 0.1]; % Trunction Norm order -
 PCEOpts.DegreeEarlyStop = true;
 PCEOpts.LARS.LarsEarlyStop = true;
 PCEOpts.LARS.ModifiedLoo = true;
-PCEOpts.Input = input; % Assign Input
+PCEOpts.Input = uq_createInput(input.Options); % Assign Input
 [PCEOpts.PolyTypes{1:6}] = deal('arbitrary'); % Set basis type
 
 % Assign experiment to PCE Options structures
 PCEOpts.ExpDesign.X = exp.in(:, 1:6); % Assign inputs
-PCEOpts.ExpDesign.Y = exp.out(:, 1:6); % Assign corresponding outputs
+PCEOpts.ExpDesign.Y = exp.out(:, 1); % Assign corresponding outputs
 
 % Compute PCE Model
 pce_model = uq_createModel(PCEOpts);
