@@ -46,6 +46,96 @@ This libraries primary contribution is an enhanced PCE computation method, selec
 
 For more details on the psra-pce resilience assessment framework see _Efficient probabilistic assessment of power system resilience using the polynomial chaos expansion method with enhanced stability_ by A. Gerkis and X. Wang [2].
 
+# Example
+To showcase how psra-pce can be applied to assess resilience an example is included, assessing the IEEE 39-Bus test system's resilience to an extreme storm through the $\Phi_{\textrm{LS}}$ metric. For a complete description of the test case see [2].
+
+### Initialization
+First the UQLab library must be initialized
+
+`uqlab;`
+
+### Experiment Generation
+Once the appropriate libraries have been intialized we then need to generate the response samples (i.e., experiment) from which the PCE model will be computed. In this example we apply the Maximin-LHS experiment design method proposed in [2].
+
+First, we need to specify the number of response samples to use when computing the PCE model
+
+```
+sim_opt.n_s = 120; % Number of model evaluations to perform in MCS
+```
+The resilience model, inputs, and corresponding parameters must then be specified. In this example we make use of a UQLab-formatted input. See the UQLab documentation for more details. First, specify the number of model inputs and outputs
+```
+sim_opt.n_in = 12; % Number of model inputs (2*Size of Active Set)
+sim_opt.n_out = 10; % Computing all metrics for 2 indicators
+```
+Then, load the input model and assign it to the options structure
+```
+load("example_input_39bus.mat");
+sim_opt.input = uq_createInput(input.Options);
+```
+Finally, specify the resilience model. Here, we make use of the UQLab model format for ease of evaluation.
+```
+Params = ps_resilience_params("39bus_exp");
+Params.output = [1 1]; 
+model_opts.mFile = 'uq_psres';
+model_opts.Parameters = Params;
+sim_opt.model = uq_createModel(model_opts);
+```
+The final step before the experiment can be generated is to specify the experiment design method. Here we use the Maximin-LHS method, with a Euclidean distance function and $N_C = 50$ candidate LHS designs.
+```
+exp_opt.Method = 'Maximin';
+exp_opt.Distance = 'Euclidean';
+exp_opt.N_cand = 50;
+```
+We then specify the experiment design method as a function handle
+```
+design_exp = @(N)uq_design_exp(sim_opt.input, N, 1, exp_opt);
+```
+And finally, we can generate the experiment, evaluating (1) on $N_S$ input samples
+```
+exp = gen_exp(sim_opt, design_exp);
+```
+
+### PCE Model Computation
+Using the generated experiment we can then compute the PCE model using the UQLab library. First we need to specify the PCE model options, including the maximum polynomial degree, $q$-norm truncation, and experiment to use. For a detailed overview of the PCE model computation options see the UQLab documentation.
+
+The PCE model computation options are first specified
+```
+load("pce_input_39bus.mat");
+
+PCEOpts.Type = 'Metamodel';
+PCEOpts.MetaType = 'PCE';
+PCEOpts.Method = 'LARS'; 
+PCEOpts.ExpDesign.Sampling = 'user';
+PCEOpts.Degree = 3:12;
+PCEOpts.TruncOptions.qNorm = [1, 0.75, 0.5, 0.25, 0.1];
+PCEOpts.DegreeEarlyStop = true;
+PCEOpts.LARS.LarsEarlyStop = true;
+PCEOpts.LARS.ModifiedLoo = true;
+PCEOpts.Input = uq_createInput(input.Options);
+[PCEOpts.PolyTypes{1:6}] = deal('arbitrary');
+```
+And the experiment is then set. Here we compute a PCE model of the $\Phi_{\textrm{LS}}$ metric, so the inputs are the component failure times (the first 6 entries in the experiment inputs) and the outputs are the $\Phi_{\textrm{LS}}$ values (the first row in the experiment outputs).
+```
+PCEOpts.ExpDesign.X = exp.in(:, 1:6);
+PCEOpts.ExpDesign.Y = exp.out(:, 1);
+```
+Finally, we can compute the PCE model
+```
+pce_model = uq_createModel(PCEOpts);
+```
+
+### Resilience Assessment
+The computed resilience model can then be applied to assess the system's resilience. The moments of the metric can be computed
+```
+[mean, variance] = psra_moments(pce_model);
+```
+and the metric's distribution can be plotted
+```
+[distribution, boundaries] = psra_dist(pce_model);
+```
+
+# Final Thoughts
+Please note that this codebase is not actively maintained. Theoretical background and validation of the psra-pce framework can be found in [2], and a detailed overview of uncertainty quantification through PCE models is available in the UQLab documentation [1]. Good luck, and happy modelling!
 
 # References
 [1] S. Marelli and B. Sudret, “Uqlab: A framework for uncertainty quantification in matlab,” in 2nd International Conference on Vulnerability, uncertainty, and risk: quantification, mitigation, and management, Liverpool, United Kingdom, 2014, pp. 2554–2563.
