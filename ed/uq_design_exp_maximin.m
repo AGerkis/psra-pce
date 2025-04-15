@@ -1,8 +1,8 @@
 % uq_design_exp_maximin.m
 %
-% Designs N experiments through the maximin criteria. Generates N_cand
+% Designs N_exp experiments through the Maximin-LHS method [1]. Generates N_cand
 % candidate experiments and compute the minimum distance in each set.
-% Selects the N experiments with the largest minimum distances as the final
+% Selects the N_exp experiments with the largest minimum distances as the final
 % output.
 %
 % Intended to be called from uq_design_exp and so does not support flexible
@@ -10,10 +10,13 @@
 %
 % Inputs:
 %   in_model: The UQ-Lab formatted input model. [uq-input] (MANDATORY)
-%   N: The number of points to include in each experiment. [Double] (MANDATORY)
+%   N_S: The number of points to include in each experiment. [Double] (MANDATORY)
 %   N_exp: The number of experiments to generate. [Double] (MANDATORY)
-%   Options: A structure containing various options pertaining to the
-%            requested sampling method OR the method to use. [struct] (MANDATORY)
+%   o: A structure containing options for the Maximin-LHS method. [struct] (MANDATORY)
+%             - o.Distance: The distance function to use, may be a string
+%                           ('Euclidean') or function handle (taking an
+%                           N_in x N_S array as input).
+%             - o.N_cand: The number of candidate LHS designs to generate. [Integer]
 %
 % Outputs:
 %   exp: A tensor containing the requested experiments. [N x M x N_exp]
@@ -21,6 +24,12 @@
 %
 % Author: Aidan Gerkis
 % Date: 14-05-2024
+%
+% References:
+%   [1] A. Gerkis and X. Wang, “Efficient probabilistic assessment of power 
+%       system resilience using the polynomial chaos expansion method with 
+%       enhanced stability,” in 2025 IEEE Power & Energy Society General 
+%       Meeting (PESGM), Austin, TX, July 2025.
 %
 % This file is part of PSRA-PCE.
 % Copyright © 2025 Aidan Gerkis
@@ -37,18 +46,28 @@
 % 
 % You should have received a copy of the GNU General Public License along 
 % with this program.  If not, see <http://www.gnu.org/licenses/>.
-function exp = uq_design_exp_maximin(in_model, N, N_exp, Options)
+function exp = uq_design_exp_maximin(in_model, N_S, N_exp, o)
     uq_retrieveSession;
     
     % Parse options
-    switch Options.Distance % Assign distance function
-        case 'Euclidean'
-            dfun = @(x)exp_dist(x, 'Euclidean');
-        otherwise
-            error("Unknown distance function specified!");
+    if isfield(o, "Distance") % Parse distance function
+        if isa(o.Distance, "string") % Option 1: Distance function is specified as a string, using one of the integrated functions
+            switch o.Distance % Assign distance function
+                case 'Euclidean'
+                    dfun = @(x)exp_dist(x, 'Euclidean');
+                otherwise
+                    error("Unknown distance function specified!");
+            end
+        elseif isa(o.Distance, "function_handle") % Option 2: Distance function is specified as a function handle
+            dfun = o.Distance;
+        else
+            error("Distance function specified incorrectly! It must be passed as a string or function handle.");
+        end
+    else % Use Euclidean distance function by defualt
+        dfun =  @(x)exp_dist(x, 'Euclidean');
     end
 
-    if N == 1 % Throw error if experiment is too small
+    if N_S == 1 % Throw error if experiment is too small
         error("Can't compute Maximin-LHS experiments with size 1!");
     end
 
@@ -59,16 +78,16 @@ function exp = uq_design_exp_maximin(in_model, N, N_exp, Options)
     uq_selectInput(in_model.Name);
     
     % Initialize candidate tensor and distance array
-    candidates = zeros(N, M, Options.N_cand);
-    d = zeros(1, Options.N_cand);
+    candidates = zeros(N_S, M, o.N_cand);
+    d = zeros(1, o.N_cand);
     
     % Generate candidate experiments
-    for i=1:Options.N_cand
+    for i=1:o.N_cand
         % Generate candidate
-        candidates(:, :, i) = uq_getSample(N, Options.Sampling);
+        candidates(:, :, i) = uq_getSample(N_S, o.Sampling);
 
         % Evaluate distance
-        d(i) = exp_dist(candidates(:, :, i));
+        d(i) = dfun(candidates(:, :, i));
     end
 
     % Find experiments with largest distances
