@@ -29,15 +29,17 @@ To install PSRA-PCE simply clone this repo into a convenient location on your co
 # Introduction
 This library efficiently assesses uncertainty in power system resilience using PCE models. A power system's resilience can be quantified through some resilience metric, measuring an extreme storm's impact on the system. In this documentation we assume that an extreme storm is modelled through the time at which power system components fail during that event, denoted in a vector $\boldsymbol{\tau}$. For more details see [2]. The resilience metric can then be expressed in the general form
 
-<p align="center" width="100%">
-$$\Omega = \mathcal{M}(\boldsymbol{\tau}) \tag{2}$$
+$$
+\Omega = \mathcal{M}(\boldsymbol{\tau}) \tag{2}
+$$
 
 Here the model, $\mathcal{M}$, represents some function (i.e., PSres) computing a resilience metric. While (1) is deterministic, the component failure times, $\boldsymbol{\tau}$, will be random in nature [2]. This randomness will propagate to the metric, $\Omega$, meaning that resilience must be assessed probabilistically. 
 
 To accomplish this efficiently, PSRA-PCE computes PCE models of (1), which approximate $\Omega$ using a polynomial function of the form
 
-<p align="center" width="100%">
-$$\hat{\Omega} = \sum\limits_{i=1}^Nc_i\boldsymbol{\Psi}_i(\boldsymbol{\tau}) \tag{2}$$
+$$
+\hat{\Omega} = \sum\limits_{i=1}^Nc_i\boldsymbol{\Psi}_i(\boldsymbol{\tau}) \tag{2}
+$$
 
 where $c_i$ are deterministic coefficients and $\boldsymbol{\Psi}$ are multivariate polynomials. The PCE model (2) can be computed from a small number of samples of the original model's response (1), and uncertainty in $\Omega$ can be assessed by directly computing $\Omega$'s moments and distribution from (2).
 
