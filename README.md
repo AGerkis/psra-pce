@@ -47,6 +47,17 @@ This libraries primary contribution is an enhanced PCE computation method, selec
 
 For more details on the PSRA-PCE resilience assessment framework see _Efficient probabilistic assessment of power system resilience using the polynomial chaos expansion method with enhanced stability_ by A. Gerkis and X. Wang [2].
 
+# Usage
+The PSRA-PCE library leverages PCE models of an existing power system resilience model, notated $\mathcal{M}$, to assess resilience. In this library we assume $\mathcal{M}$ to be the [PSres](https://github.com/AGerkis/ps-res/tree/main) model, although an arbitrary resilience model can be applied.
+
+To apply the PSRA-PCE model a resilience model must first be defined, computing a resilience metric (i.e., the $\Phi_{LS}$ metric defined by Panteli et al. [3]) as a function of random component failures. This model can be defined using the PSres model's explicit input mode and defining random component failures using UQLab's input module, resulting in a resilience model in the format
+
+$$
+\Omega = \mathcal{M}(\boldsymbol{\tau})
+$$
+
+Then, a PCE model of $\Omega$ can be computed by generating an experiment (consisting of $N_S$ input-output samples $[\Omega, \boldsymbol{\tau}]) using the `gen_exp` function in [PSres](https://github.com/AGerkis/ps-res/tree/main) and one of the experiment design methods (e.g., Maximin-LHS) provided in this library. Using this experiment, a PCE model of $\Omega$ can be computed using [UQLab](https://www.uqlab.com/) and applied to assess resilience through the moments (using `psra_moments`) and distribution (using `psra_dist`) of $\Omega$.
+
 # Example
 To showcase how PSRA-PCE can be applied to assess resilience an example is included, assessing the IEEE 39-Bus test system's resilience to an extreme storm through the $\Phi_{\textrm{LS}}$ metric. For a complete description of the test case see [2].
 
@@ -134,6 +145,17 @@ and the metric's distribution can be plotted
 ```
 [distribution, boundaries] = psra_dist(pce_model);
 ```
+For this example the output of `psra_moments` should approximately match
+<p align="center" width="100%">
+<img src="https://github.com/user-attachments/assets/cec8fa51-e32d-4261-b9ba-59f71f78f25a" alt="`psra_moments` output" width="300">
+</p>
+and the output plots of `psra_dist` should approximately match
+<p align="center" width="100%">
+<img src="https://github.com/user-attachments/assets/5819ef3e-df74-4102-af23-ebd96c9ff671" alt="`psra_dist` PDF output" width="400">
+<img src="https://github.com/user-attachments/assets/8b7c1db8-135d-42a5-a1ba-532b46166ec0" alt="`psra_dist` CDF output" width="400">
+</p>
+
+Note that the outputs will not match exactly due to the inherent randomness when computing PCE models.
 
 # Final Thoughts
 Please note that this codebase is not actively maintained. Theoretical background and validation of the PSRA-PCE framework can be found in [2], and a detailed overview of uncertainty quantification through PCE models is available in the UQLab documentation [1]. Good luck, and happy modelling!
