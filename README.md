@@ -164,3 +164,5 @@ Please note that this codebase is not actively maintained. Theoretical backgroun
 [1] S. Marelli and B. Sudret, “Uqlab: A framework for uncertainty quantification in matlab,” in 2nd International Conference on Vulnerability, uncertainty, and risk: quantification, mitigation, and management, Liverpool, United Kingdom, 2014, pp. 2554–2563.
 
 [2] A. Gerkis and X. Wang, “Efficient probabilistic assessment of power system resilience using the polynomial chaos expansion method with enhanced stability,” in 2025 IEEE Power & Energy Society General Meeting (PESGM), Austin, TX, July 2025.
+
+[3] M. Panteli, P. Mancarella, D. N. Trakas, E. Kyriakides, and N. D. Hatziargyriou, “Metrics and quantification of operational and infrastructure resilience in power systems,” IEEE Transactions on Power Systems, vol. 32, no. 6, pp. 4732–4742, Nov. 2017.
