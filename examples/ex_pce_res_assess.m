@@ -30,7 +30,7 @@ uqlab;
 sim_opt = struct(); % Create empty structure
 
 % Simulation Parameters
-sim_opt.n_s = 200; % Number of model evaluations to perform in MCS
+sim_opt.n_s = 120; % Number of model evaluations to perform in MCS
 sim_opt.plotting = 0; % Don't plot results of experiment
 
 % Model Parameters
