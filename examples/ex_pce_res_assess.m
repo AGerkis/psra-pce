@@ -30,7 +30,8 @@ uqlab;
 sim_opt = struct(); % Create empty structure
 
 % Simulation Parameters
-sim_opt.n_s = 120; % Number of model evaluations to perform in MCS
+sim_opt.n_s = 200; % Number of model evaluations to perform in MCS
+sim_opt.plotting = 0; % Don't plot results of experiment
 
 % Model Parameters
 sim_opt.n_in = 12; % Number of model inputs (2*Size of Active Set)
@@ -99,4 +100,4 @@ val.y = validation.out(:, 1);
 [mean, variance] = psra_moments(pce_model, val);
 
 % Approximate Distribution;
-[distribution, boundaries] = psra_dist(pce_model, val);
+[distribution, boundaries] = psra_dist(pce_model, val, true);

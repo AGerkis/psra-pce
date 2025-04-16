@@ -51,7 +51,7 @@ function exp = uq_design_exp_maximin(in_model, N_S, N_exp, o)
     
     % Parse options
     if isfield(o, "Distance") % Parse distance function
-        if isa(o.Distance, "string") % Option 1: Distance function is specified as a string, using one of the integrated functions
+        if isa(o.Distance, "string") || isa(o.Distance, "char") % Option 1: Distance function is specified as a string, using one of the integrated functions
             switch o.Distance % Assign distance function
                 case 'Euclidean'
                     dfun = @(x)exp_dist(x, 'Euclidean');

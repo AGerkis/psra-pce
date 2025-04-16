@@ -15,6 +15,8 @@
 %       v.y: The model outputs [N_mcs x 1 double]
 %    : If the validation dataset is not passed this can be N_D, the number
 %      of datapoints to use when computing the distribution. [integer]
+%   rmo: A flag indicating whether outliers should be removed when
+%        plotting the distributions. [boolean]
 %
 % Outputs:
 %   d: The distribution approximation:
@@ -43,16 +45,20 @@
 % 
 % You should have received a copy of the GNU General Public License along 
 % with this program.  If not, see <http://www.gnu.org/licenses/>.
-function [d, b] = psra_dist(m, v)
+function [d, b] = psra_dist(m, v, rmo)
     %% Parse Inputs & Assign parameters
     N_D = 10000; % Number of points to use when computing distribution
     n_s = 1000; % Number of points to use when plotting PDFs and CDFs
     K = 25; % Number of bins to use when computing total variation
-    n_bins = 100; % Number of bins to use when plotting distributions
+    if rmo % Number of bins to use when plotting distributions
+        n_bins = 25; 
+    else
+        n_bins = 100;
+    end
     validate = true; % Validate by default
     
     % Parse N_D if it was passed
-    if nargin == 2
+    if nargin >= 2
         if isa(v, 'numeric')
             N_D = v;
         end
@@ -60,7 +66,7 @@ function [d, b] = psra_dist(m, v)
         v = struct();
     end
 
-    if nargin ~= 2 || isa(v, 'numeric') % If validation data was not passed
+    if nargin < 2 || isa(v, 'numeric') % If validation data was not passed
         validate = false;
         
         % Generate samples ()
@@ -83,6 +89,11 @@ function [d, b] = psra_dist(m, v)
     dist_hat = fitdist(y_hat, 'Kernel');
 
     if validate
+        % Trim outliers if requested
+        if rmo
+            v.y = rmoutliers(v.y, "percentiles", [0.5, 99.5]);
+        end
+
         dist_true = fitdist(v.y, 'Kernel');
     end
 
@@ -92,7 +103,6 @@ function [d, b] = psra_dist(m, v)
         y_pdf = v.y;
     else
         y_pdf = y_hat;
-
     end
 
     % Create array of points for evaluating PDF
@@ -143,7 +153,7 @@ function [d, b] = psra_dist(m, v)
     ylabel("Probability");
     yyaxis left
     ylabel("Frequency");
-    xlabel("Metric Value")
+    xlabel("Metric Value");
     title("PDF of Metric" + tv_title);
     grid on;
     hold off;
@@ -163,15 +173,17 @@ function [d, b] = psra_dist(m, v)
         histogram(y_hat, h.BinEdges, 'Normalization', 'cdf', 'FaceColor', [0.8500 0.3250 0.0980]);
         yyaxis right
         plot(range, cdf_hat, 'Color', [0.8500 0.3250 0.0980], 'LineWidth', 2, 'LineStyle', '-')
-        legend(["True", "Approximate", "", ""]);
+        legend(["True", "Approximate", "", ""], 'location', 'northwest');
     else
         histogram(y_hat, n_bins, 'Normalization', 'cdf', 'FaceColor', [0.8500 0.3250 0.0980]);
         yyaxis right
         plot(range, cdf_hat, 'Color', [0.8500 0.3250 0.0980], 'LineWidth', 2)
     end
     ylabel("Cumulative Probability");
+    ylim([0, 1.1]);
     yyaxis left
     ylabel("Cumulative Frequency");
+    ylim([0, 1.1]);
     xlabel("Metric Value")
     title("CDF of Metric" + tv_title);
     grid on;
