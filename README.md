@@ -56,7 +56,7 @@ $$
 \Omega = \mathcal{M}(\boldsymbol{\tau})
 $$
 
-Then, a PCE model of $\Omega$ can be computed by generating an experiment (consisting of $N_S$ input-output samples $[\Omega, \boldsymbol{\tau}]) using the `gen_exp` function in [PSres](https://github.com/AGerkis/ps-res/tree/main) and one of the experiment design methods (e.g., Maximin-LHS) provided in this library. Using this experiment, a PCE model of $\Omega$ can be computed using [UQLab](https://www.uqlab.com/) and applied to assess resilience through the moments (using `psra_moments`) and distribution (using `psra_dist`) of $\Omega$.
+Then, a PCE model of $\Omega$ can be computed by generating an experiment (consisting of $N_S$ input-output samples $[\Omega, \boldsymbol{\tau}]$) using the `gen_exp` function in [PSres](https://github.com/AGerkis/ps-res/tree/main) and one of the experiment design methods (e.g., Maximin-LHS) provided in this library. Using this experiment, a PCE model of $\Omega$ can be computed using [UQLab](https://www.uqlab.com/) and applied to assess resilience through the moments (using `psra_moments`) and distribution (using `psra_dist`) of $\Omega$.
 
 # Example
 To showcase how PSRA-PCE can be applied to assess resilience an example is included, assessing the IEEE 39-Bus test system's resilience to an extreme storm through the $\Phi_{\textrm{LS}}$ metric. For a complete description of the test case see [2].
@@ -164,3 +164,5 @@ Please note that this codebase is not actively maintained. Theoretical backgroun
 [1] S. Marelli and B. Sudret, “Uqlab: A framework for uncertainty quantification in matlab,” in 2nd International Conference on Vulnerability, uncertainty, and risk: quantification, mitigation, and management, Liverpool, United Kingdom, 2014, pp. 2554–2563.
 
 [2] A. Gerkis and X. Wang, “Efficient probabilistic assessment of power system resilience using the polynomial chaos expansion method with enhanced stability,” in 2025 IEEE Power & Energy Society General Meeting (PESGM), Austin, TX, July 2025.
+
+[3] M. Panteli, P. Mancarella, D. N. Trakas, E. Kyriakides, and N. D. Hatziargyriou, “Metrics and quantification of operational and infrastructure resilience in power systems,” IEEE Transactions on Power Systems, vol. 32, no. 6, pp. 4732–4742, Nov. 2017.
