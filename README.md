@@ -56,7 +56,7 @@ $$
 \Omega = \mathcal{M}(\boldsymbol{\tau})
 $$
 
-Then, a PCE model of $\Omega$ can be computed by generating an experiment (consisting of $N_S$ input-output samples $[\Omega, \boldsymbol{\tau}]) using the `gen_exp` function in [PSres](https://github.com/AGerkis/ps-res/tree/main) and one of the experiment design methods (e.g., Maximin-LHS) provided in this library. Using this experiment, a PCE model of $\Omega$ can be computed using [UQLab](https://www.uqlab.com/) and applied to assess resilience through the moments (using `psra_moments`) and distribution (using `psra_dist`) of $\Omega$.
+Then, a PCE model of $\Omega$ can be computed by generating an experiment (consisting of $N_S$ input-output samples $[\Omega, \boldsymbol{\tau}]$) using the `gen_exp` function in [PSres](https://github.com/AGerkis/ps-res/tree/main) and one of the experiment design methods (e.g., Maximin-LHS) provided in this library. Using this experiment, a PCE model of $\Omega$ can be computed using [UQLab](https://www.uqlab.com/) and applied to assess resilience through the moments (using `psra_moments`) and distribution (using `psra_dist`) of $\Omega$.
 
 # Example
 To showcase how PSRA-PCE can be applied to assess resilience an example is included, assessing the IEEE 39-Bus test system's resilience to an extreme storm through the $\Phi_{\textrm{LS}}$ metric. For a complete description of the test case see [2].
