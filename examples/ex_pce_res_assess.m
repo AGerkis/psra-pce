@@ -31,7 +31,7 @@ sim_opt = struct(); % Create empty structure
 
 % Simulation Parameters
 sim_opt.n_s = 120; % Number of model evaluations to perform in MCS
-sim_opt.plotting = 0; % Don't plot results of experiment
+sim_opt.make_plots = false; % Don't plot results of experiment
 
 % Model Parameters
 sim_opt.n_in = 12; % Number of model inputs (2*Size of Active Set)
